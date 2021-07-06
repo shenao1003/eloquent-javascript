@@ -12,3 +12,10 @@ function requireX(name) {
   }
   return requireX.cache[name].exports
 }
+
+const { roadGraph } = requireX('./roads.js')
+const { compareRobots } = requireX('./state.js')
+const { randomRobot, goalOrientedRobot, lazyRobot } = requireX('./robots.js')
+
+compareRobots(roadGraph, randomRobot, [], goalOrientedRobot, [])
+compareRobots(roadGraph, goalOrientedRobot, [], lazyRobot, [])

@@ -2,16 +2,16 @@ const { randomPick } = requireX('./random-item.js')
 const { findRoute } = requireX('./route.js')
 
 exports.randomRobot = function(state) {
-  return { direction: randomPick(Object.keys(state.graph)) }
+  return { direction: randomPick(state.graph[state.place]) }
 }
 
-exports.goalOrientedRobot = function(state, memory) {
+exports.goalOrientedRobot = function({ graph, place, parcels }, memory) {
   if (!memory.length) {
-    const { place, address } = state.parcels[0]
-    if (place === state.place) {
-      memory = findRoute(state, place, address)
+    const parcel = parcels[0]
+    if (parcel.place === place) {
+      memory = findRoute(graph, place, parcel.address)
     } else {
-      memory = findRoute(state, state.place, place)
+      memory = findRoute(graph, place, parcel.place)
     }
   }
   return {
@@ -20,15 +20,19 @@ exports.goalOrientedRobot = function(state, memory) {
   }
 }
 
-exports.lazyRobot = function(state, memory) {
+exports.lazyRobot = function({ graph, place, parcels }, memory) {
   if (!memory.length) {
-    const routes = state.parcels.map(({ place, address }) => {
-      return
+    const routes = parcels.map(p => {
+      if (p.place === place) {
+        return { route: findRoute(graph, place, p.address), pickUp: false }
+      } else {
+        return { route: findRoute(graph, place, p.place), pickUp: true }
+      }
     })
     function score({ route, pickUp }) {
-      return - route.length + pickUp ? 0.5 : 0
+      return pickUp ? 0.5 : 0 - route.length
     }
-    memory = routes.reduce((a, b) => score(a) > score(b) ? a : b)
+    memory = routes.reduce((a, b) => score(a) > score(b) ? a : b).route
   }
   return {
     direction: memory[0],

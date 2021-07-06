@@ -193,6 +193,7 @@ function efficientRobot({ place, parcels }, route) {
 // runRobot(VillageState.random(), randomRobot, [])
 // runRobot(VillageState.random(), routeRobot, [])
 // runRobot(VillageState.random(), goalOrientedRobot, [])
+// compareRobots(randomRobot, [], goalOrientedRobot, [])
 // compareRobots(routeRobot, [], goalOrientedRobot, [])
 // compareRobots(goalOrientedRobot, [], efficientRobot, [])
 
