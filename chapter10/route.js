@@ -1,21 +1,14 @@
-const { randomPick } = requireX('./random-item.js')
-
 exports.findRoute = function(graph, from, to) {
   const work = [{ at: from, route: [] }]
-
-
-
-  return route
-}
-
-exports.randomRoute = function(graph, from, length) {
-  const route = []
-  for (let i = 1; i < length; i++) {
-    const place = randomPick(graph[from])
-    if (!route.includes(place)) {
-      from = place
-      route.push(place)
+  for (let i = 0; i < work.length; i++) {
+    const { at, route } = work[i]
+    for (const place of graph[at]) {
+      if (place === to) {
+        return route.concat(place)
+      }
+      if (work.every(w => w.at !== place)) {
+        work.push({ at: place, route: route.concat(place) })
+      }
     }
   }
-  return route
 }

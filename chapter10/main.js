@@ -12,6 +12,3 @@ function requireX(name) {
   }
   return requireX.cache[name].exports
 }
-
-const { roadGraph } = requireX('./roads.js')
-console.log(roadGraph)

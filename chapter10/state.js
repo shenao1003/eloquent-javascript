@@ -20,11 +20,11 @@ exports.VillageState = class {
         return p
       })
       .filter(({ id, place, address }) => {
-        const dropped = place === address
-        if (dropped) {
-          console.log(`Parcel ${id} dropped at ${place}`)
+        const arrived = place === address
+        if (arrived) {
+          console.log(`Parcel ${id} arrived at ${place}`)
         }
-        return !dropped
+        return !arrived
       })
     return new VillageState(this.graph, destination, parcels)
   }
@@ -35,12 +35,9 @@ exports.VillageState = class {
       const places = Object.keys(graph)
       const place = randomPick[places]
       let address = ''
-      while (true) {
+      do {
         address = randomPick[places]
-        if (place !== address) {
-          break
-        }
-      }
+      } while (address === place)
       parcels.push({ id: i + 1, place, address })
     }
     return new VillageState(graph, robotPlace, parcels)
@@ -48,9 +45,9 @@ exports.VillageState = class {
 }
 
 exports.runRobot = function(robot, state, memory) {
-  while (true) {
+  for (let turn = 0; ; turn++) {
     if (!state.parcels.length) {
-      console.log(`All parcels deliverd`)
+      console.log(`Done in ${turn} turns`)
       return
     }
 
