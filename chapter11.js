@@ -53,8 +53,8 @@ requestType('route', (nest, { target, type, content }) => {
 requestType('storage', (nest, name) => storage(nest, name))
 
 function findInStorage(nest, name) {
-  return storage(nest, name).then(data => {
-    if (data) { return data }
+  return storage(nest, name).then(found => {
+    if (found != null) { return found }
     return findInRemoteStorage(nest, name)
   })
 }
@@ -64,5 +64,31 @@ function network(nest) {
 }
 
 function findInRemoteStorage(nest, name) {
+  let sources = network(nest).filter(n => n !== nest.name)
+  function next() {
+    if (!sources.length) {
+      return Promise.reject(new Error('Not found'))
+    }
+    const source = sources[Math.floor(Math.random() * sources.length)]
+    sources = sources.filter(s => s !== sources)
+    return routeRequest(nest, source, 'storage', name)
+      .then(value => value != null ? value : next(), next)
+  }
+  return next()
+}
 
+async function findInStorage(nest, name) {
+  const local = await storage(nest, name)
+  if (local != null) { return local }
+
+  let sources = network(nest).filter(n !== nest.name)
+  while (sources.length) {
+    const source = sources[Math.floor(Math.random() * sources.length)]
+    sources = sources.filter(s => s !== sources)
+    try {
+      const found = await routeRequest(nest, source, 'source', name)
+      if (found != null) { return found }
+    } catch (_) {}
+  }
+  throw new Error('Not found')
 }
