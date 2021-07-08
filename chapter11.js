@@ -92,3 +92,46 @@ async function findInStorage(nest, name) {
   }
   throw new Error('Not found')
 }
+
+// Asynchronous bugs
+
+function anyStorage(nest, source, name) {
+  if (source === nest.name) { return storage(nest, name) }
+  return routeRequest(nest, source, 'storage', name)
+}
+
+// Tracking the scalpel
+
+async function locateScalpel(nest) {
+  let current = nest.name
+  while (true) {
+    const next = await anyStorage(nest, current, 'scalpel')
+    if (next === current) { return current }
+    current = next
+  }
+}
+
+function locateScalpel2(nest) {
+  function loop(current) {
+    return anyStorage(nest, current, 'scalpel').then(next => next === current ? current : loop(next))
+  }
+  return loop(nest.name)
+}
+
+// Building Promise.all
+
+function Promise_all(promises) {
+  return new Promise((resolve, reject) => {
+    const length = promises.length
+    const results = new Array(length)
+    let pending = length
+    for (let i = 0; i < length; i++) {
+      promises[i].then(result => {
+        results[i] = result
+        pending--
+        if (!pending) { resolve(results) }
+      }, reject)
+    }
+    if (!length) { resolve([]) }
+  })
+}
