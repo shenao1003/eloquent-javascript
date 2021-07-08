@@ -25,23 +25,25 @@ function parseApply(expr, program) {
     return { expr, rest: program }
   }
 
-  program = program.slice(1)
+  program = skipSpace(program.slice(1))
   expr = { type: 'apply', operator: expr, args: [] }
   while (program[0] !== ')') {
     const arg = parseExpression(program)
     expr.args.push(arg.expr)
-    program = arg.rest
+    program = skipSpace(arg.rest)
     if (program[0] === ',') {
-      program = program.slice(1)
-    } else if (program[0] === ')') {
-      return parseApply(expr, program.slice(1))
-    } else {
-      throw new SyntaxError('')
+      program = skipSpace(program.slice(1))
+    } else if (program[0] !== ')') {
+      throw new SyntaxError("Expected ',' or ')'")
     }
   }
+  return parseApply(expr, program.slice(1))
 }
 
 function parse(program) {
   const { expr, rest } = parseExpression(program)
-  
+  if (skipSpace(rest).length) {
+    throw new SyntaxError('Unexpected text after program')
+  }
+  return expr
 }
