@@ -46,6 +46,66 @@ window.addEventListener('mousemove', event => {
   currentDot = (currentDot + 1) % dots.length
 })
 
+// Mouse Trail (Optional)
+
+class Mouse {
+  constructor() {
+    this.x = 0
+    this.y = 0
+  }
+
+  update(x, y) {
+    this.x = x
+    this.y = y
+  }
+}
+class Dot {
+  constructor() {
+    this.x = 0
+    this.y = 0
+    this.node = (function() {
+      const n = document.createElement('div')
+      n.className = 'trail'
+      document.body.appendChild(n)
+      return n
+    })()
+  }
+
+  draw(x, y) {
+    this.x = x
+    this.y = y
+    this.node.style.left = `${x}px`
+    this.node.style.top = `${y}px`
+  }
+}
+
+const mouse = new Mouse()
+const dots = []
+for (let i = 0; i < 12; i++) {
+  dots.push(new Dot())
+}
+
+window.addEventListener('mousemove', ({ pageX, pageY }) => {
+  mouse.update(pageX, pageY)
+})
+
+function draw() {
+  let { x, y } = mouse
+  dots.forEach((dot, index) => {
+    dot.draw(x, y)
+    const nextDot = dots[index + 1] || dots[0]
+    x -= (x - nextDot.x) * 0.6
+    y -= (y - nextDot.y) * 0.6
+  })
+}
+
+function animate() {
+  draw()
+  requestAnimationFrame(animate)
+}
+
+animate()
+
 // Tabs
 
 function asTabs(node) {
